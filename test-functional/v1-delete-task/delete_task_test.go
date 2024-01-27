@@ -37,7 +37,6 @@ func Test(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer req.Body.Close()
 
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
@@ -60,7 +59,6 @@ func Test(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer req.Body.Close()
 
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {

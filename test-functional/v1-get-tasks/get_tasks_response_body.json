@@ -1,4 +1,6 @@
-{
-  "title": "the most social task ever",
-  "description": "with the most social description ever"
-}
+[
+  {
+    "title": "the most social task ever",
+    "description": "with the most social description ever"
+  }
+]

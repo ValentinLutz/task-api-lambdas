@@ -31,9 +31,11 @@ func (Lambda) Build() error {
 	library.GetOrSetDefaultStageEnvVars()
 
 	lambdas := []string{
+		"./lambda-v1-delete-task",
 		"./lambda-v1-get-task",
 		"./lambda-v1-get-tasks",
 		"./lambda-v1-post-tasks",
+		"./lambda-v1-put-task",
 	}
 
 	for _, lambda := range lambdas {

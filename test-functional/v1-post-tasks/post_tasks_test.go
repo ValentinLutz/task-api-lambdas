@@ -25,12 +25,14 @@ func Test(t *testing.T) {
 			// then
 			td.Cmp(t, resp.StatusCode, 200)
 
-			var respBody testfunctional.TasksResponse
+			var respBody testfunctional.TaskResponse
 			err = json.NewDecoder(resp.Body).Decode(&respBody)
 			td.CmpNoError(t, err)
 
 			td.CmpJSON(
-				t, respBody, "./post_tasks_response_body.json", []any{},
+				t, respBody, "./post_tasks_response_body.json", []any{
+					td.String(respBody.TaskId.String()),
+				},
 			)
 		},
 	)

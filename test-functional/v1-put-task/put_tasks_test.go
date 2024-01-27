@@ -55,7 +55,7 @@ func Test(t *testing.T) {
 		"put task that does not exist", func(t *testing.T) {
 			// given
 			taskId := "00000000-0000-0000-0000-000000000000"
-			requestBody := testfunctional.ReadFile("./put_task_request_body_not_found.json.json")
+			requestBody := testfunctional.ReadFile("./put_task_request_body_not_found.json")
 
 			// when
 			request, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/%s", testfunctional.BaseUrl, taskId), requestBody)

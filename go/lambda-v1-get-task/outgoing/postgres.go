@@ -2,10 +2,14 @@ package outgoing
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
+
+var ErrTaskNotFound = errors.New("task not found")
 
 type TaskRepository struct {
 	database *sqlx.DB
@@ -25,6 +29,9 @@ func (taskRepository *TaskRepository) FindByTaskId(ctx context.Context, taskId u
 		"SELECT task_id, title, description FROM public.tasks WHERE task_id = $1",
 		taskId,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return TaskEntity{}, ErrTaskNotFound
+	}
 	if err != nil {
 		return TaskEntity{}, err
 	}

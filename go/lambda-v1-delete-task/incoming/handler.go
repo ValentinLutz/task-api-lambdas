@@ -2,13 +2,12 @@ package incoming
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"root/go/lambda-shared"
-	"root/go/lambda-v1-get-task/core"
-	"root/go/lambda-v1-get-task/outgoing"
+	"root/go/lambda-v1-delete-task/core"
+	"root/go/lambda-v1-delete-task/outgoing"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -62,27 +61,16 @@ func (handler *Handler) Invoke(ctx context.Context, r events.APIGatewayProxyRequ
 		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to parse task id: %w", err)
 	}
 
-	taskEntity, err := handler.TaskService.GetTask(ctx, taskId)
+	err = handler.TaskService.DeleteTask(ctx, taskId)
 	if errors.Is(err, outgoing.ErrTaskNotFound) {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 404,
 		}, nil
-	}
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to get task: %w", err)
-	}
-
-	tasksResponse := NewTaskResponse(taskEntity)
-	tasksResponseBody, err := json.Marshal(tasksResponse)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to marshal task: %w", err)
+	} else if err != nil {
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to delete task: %w", err)
 	}
 
 	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-		Body: string(tasksResponseBody),
+		StatusCode: 204,
 	}, nil
 }

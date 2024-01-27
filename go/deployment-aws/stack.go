@@ -49,9 +49,11 @@ func NewFunction(stack awscdk.Stack, config *StageConfig, functionName string, b
 }
 
 func NewRestApi(stack awscdk.Stack, config *StageConfig) awscdk.Stack {
+	deleteTaskFunction := NewFunction(stack, config, "V1DeleteTask", "../lambda-v1-delete-task")
 	getTaskFunction := NewFunction(stack, config, "V1GetTask", "../lambda-v1-get-task")
 	getTasksFunction := NewFunction(stack, config, "V1GetTasks", "../lambda-v1-get-tasks")
 	postTasksFunction := NewFunction(stack, config, "V1PostTasks", "../lambda-v1-post-tasks")
+	putTaskFunction := NewFunction(stack, config, "V1PutTask", "../lambda-v1-put-task")
 
 	openApiSpecs, err := template.ParseFiles("../api-definition/task-api-v1.yaml")
 	if err != nil {
@@ -61,9 +63,11 @@ func NewRestApi(stack awscdk.Stack, config *StageConfig) awscdk.Stack {
 	var orderApiV1 bytes.Buffer
 	err = openApiSpecs.Execute(
 		&orderApiV1, map[string]string{
-			"GetTaskFunctionArn":   *getTaskFunction.FunctionArn(),
-			"GetTasksFunctionArn":  *getTasksFunction.FunctionArn(),
-			"PostTasksFunctionArn": *postTasksFunction.FunctionArn(),
+			"DeleteTaskFunctionArn": *deleteTaskFunction.FunctionArn(),
+			"GetTaskFunctionArn":    *getTaskFunction.FunctionArn(),
+			"GetTasksFunctionArn":   *getTasksFunction.FunctionArn(),
+			"PostTasksFunctionArn":  *postTasksFunction.FunctionArn(),
+			"PutTaskFunctionArn":    *putTaskFunction.FunctionArn(),
 		},
 	)
 	if err != nil {
@@ -108,6 +112,12 @@ func NewRestApi(stack awscdk.Stack, config *StageConfig) awscdk.Stack {
 		},
 	)
 
+	deleteTaskFunction.AddPermission(
+		jsii.String("AllowApiGatewayInvoke"), &awslambda.Permission{
+			Principal: awsiam.NewServicePrincipal(jsii.String("apigateway.amazonaws.com"), &awsiam.ServicePrincipalOpts{}),
+			SourceArn: restApi.ArnForExecuteApi(jsii.String("DELETE"), jsii.String("/v1/tasks/{task_id}"), nil),
+		},
+	)
 	getTaskFunction.AddPermission(
 		jsii.String("AllowApiGatewayInvoke"), &awslambda.Permission{
 			Principal: awsiam.NewServicePrincipal(jsii.String("apigateway.amazonaws.com"), &awsiam.ServicePrincipalOpts{}),
@@ -124,6 +134,12 @@ func NewRestApi(stack awscdk.Stack, config *StageConfig) awscdk.Stack {
 		jsii.String("AllowApiGatewayInvoke"), &awslambda.Permission{
 			Principal: awsiam.NewServicePrincipal(jsii.String("apigateway.amazonaws.com"), &awsiam.ServicePrincipalOpts{}),
 			SourceArn: restApi.ArnForExecuteApi(jsii.String("POST"), jsii.String("/v1/tasks"), nil),
+		},
+	)
+	putTaskFunction.AddPermission(
+		jsii.String("AllowApiGatewayInvoke"), &awslambda.Permission{
+			Principal: awsiam.NewServicePrincipal(jsii.String("apigateway.amazonaws.com"), &awsiam.ServicePrincipalOpts{}),
+			SourceArn: restApi.ArnForExecuteApi(jsii.String("PUT"), jsii.String("/v1/tasks/{task_id}"), nil),
 		},
 	)
 

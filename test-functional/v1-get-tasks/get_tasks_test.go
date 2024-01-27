@@ -13,11 +13,16 @@ func Test(t *testing.T) {
 	t.Run(
 		"get tasks", func(t *testing.T) {
 			// given
-			_, err := http.Post(
+			postResponse, err := http.Post(
 				testfunctional.BaseUrl,
 				"application/json",
 				testfunctional.ReadFile("./post_tasks_request_body.json"),
 			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var postResponseBody testfunctional.TaskResponse
+			err = json.NewDecoder(postResponse.Body).Decode(&postResponseBody)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -36,8 +41,8 @@ func Test(t *testing.T) {
 			err = json.NewDecoder(resp.Body).Decode(&respBody)
 			td.CmpNoError(t, err)
 
-			td.CmpJSON(
-				t, respBody, "./get_tasks_response_body.json", []any{},
+			td.CmpContains(
+				t, respBody, postResponseBody, []any{},
 			)
 		},
 	)
