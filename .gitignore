@@ -1,5 +1,6 @@
 # JetBrains IDEs
 .idea
+*.iml
 
 # AWS SAM
 .aws-sam
@@ -8,7 +9,3 @@
 .cdk.staging
 cdk.out
 bootstrap
-
-# Testing
-coverage.out
-coverage.html
