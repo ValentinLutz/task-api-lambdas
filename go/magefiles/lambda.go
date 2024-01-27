@@ -31,6 +31,7 @@ func (Lambda) Build() error {
 	library.GetOrSetDefaultStageEnvVars()
 
 	lambdas := []string{
+		"./lambda-v1-get-task",
 		"./lambda-v1-get-tasks",
 		"./lambda-v1-post-tasks",
 	}

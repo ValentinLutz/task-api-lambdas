@@ -21,7 +21,7 @@ func NewTaskService(orderRepository *outgoing.TaskRepository) *TaskService {
 func (service *TaskService) SaveTask(ctx context.Context, title string, description *string) (outgoing.TaskEntity, error) {
 	taskId, err := uuid.NewV7()
 	if err != nil {
-		return outgoing.TaskEntity{}, fmt.Errorf("failed to generate taskId: %w", err)
+		return outgoing.TaskEntity{}, fmt.Errorf("failed to generate task id: %w", err)
 	}
 
 	taskEntity := outgoing.TaskEntity{

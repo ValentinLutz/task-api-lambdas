@@ -17,7 +17,7 @@ func NewTaskService(orderRepository *outgoing.TaskRepository) *TaskService {
 }
 
 func (service *TaskService) GetTasks(ctx context.Context) ([]outgoing.TaskEntity, error) {
-	tasksEntities, err := service.taskRepository.FindAllTasks(ctx)
+	tasksEntities, err := service.taskRepository.FindAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tasksEntities: %w", err)
 	}

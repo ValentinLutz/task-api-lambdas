@@ -11,11 +11,11 @@ servers:
 paths:
   /v1/tasks:
     get:
-      operationId: get_tasks
-      summary: Returns a list of tasks
+      operationId: "get_tasks"
+      summary: "Returns a list of tasks"
       responses:
         "200":
-          description: OK
+          description: "A list of tasks"
           content:
             application/json:
               schema:
@@ -27,8 +27,8 @@ paths:
         passthroughBehavior: "when_no_match"
 
     post:
-      operationId: post_tasks
-      summary: Create a new task
+      operationId: "post_tasks"
+      summary: "Create a new task"
       requestBody:
         required: true
         content:
@@ -37,7 +37,7 @@ paths:
               $ref: "#/components/schemas/TaskRequest"
       responses:
         "201":
-          description: Created
+          description: "Task created"
           content:
             application/json:
               schema:
@@ -50,40 +50,41 @@ paths:
 
   /v1/tasks/{task_id}:
     get:
-      operationId: get_task
-      summary: Returns a task with the task id
+      operationId: "get_task"
+      summary: "Returns a task with the task id"
       parameters:
-        - in: path
-          name: task_id
+        - in: "path"
+          name: "task_id"
           required: true
+          description: "The id of the task to return"
           schema:
-            type: string
-            format: uuid
+            type: "string"
+            format: "uuid"
       responses:
         "200":
-          description: OK
+          description: "Information about a single task"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskResponse"
         "404":
-          description: Not Found
-    x-amazon-apigateway-integration:
-      httpMethod: "POST"
-      uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/{{ .GetTaskFunctionArn }}/invocations"
-      type: "aws_proxy"
-      passthroughBehavior: "when_no_match"
+          description: "Task not found"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/{{ .GetTaskFunctionArn }}/invocations"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
 
     put:
-      operationId: put_task
-      summary: Replace a task with the task id
+      operationId: "put_task"
+      summary: "Replace a task with the task id"
       parameters:
-        - in: path
-          name: task_id
+        - in: "path"
+          name: "task_id"
           required: true
           schema:
-            type: string
-            format: uuid
+            type: "string"
+            format: "uuid"
       requestBody:
         required: true
         content:
@@ -92,9 +93,9 @@ paths:
               $ref: "#/components/schemas/TaskRequest"
       responses:
         "204":
-          description: No Content
+          description: "No Content"
         "404":
-          description: Not Found
+          description: "Task not found"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/{{ .PutTaskFunctionArn }}/invocations"
@@ -102,20 +103,20 @@ paths:
         passthroughBehavior: "when_no_match"
 
     delete:
-      operationId: delete_task
-      summary: Delete a task with the task id
+      operationId: "delete_task"
+      summary: "Delete a task with the task id"
       parameters:
-        - in: path
-          name: task_id
+        - in: "path"
+          name: "task_id"
           required: true
           schema:
-            type: string
-            format: uuid
+            type: "string"
+            format: "uuid"
       responses:
         "204":
-          description: No Content
+          description: "No Content"
         "404":
-          description: Not Found
+          description: "Task not found"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/{{ .DeleteTaskFunctionArn }}/invocations"
@@ -127,29 +128,29 @@ components:
     TaskResponse:
       properties:
         title:
-          type: string
-          example: Lorem ipsum dolor
+          type: "string"
+          example: "Lorem ipsum dolor"
         description:
-          type: string
-          example: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dia
+          type: "string"
+          example: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dia"
         task_id:
-          type: string
-          example: 4f6b3bf7-21a7-4b43-ba74-e9e442e875a2
-          format: uuid
+          type: "string"
+          example: "4f6b3bf7-21a7-4b43-ba74-e9e442e875a2"
+          format: "uuid"
       required:
-        - task_id
-        - title
+        - "task_id"
+        - "title"
     TasksResponse:
-      type: array
+      type: "array"
       items:
         $ref: "#/components/schemas/TaskResponse"
     TaskRequest:
       properties:
         title:
-          type: string
-          example: Lorem ipsum dolor
+          type: "string"
+          example: "Lorem ipsum dolor"
         description:
-          type: string
-          example: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dia
+          type: "string"
+          example: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dia"
       required:
-        - title
+        - "title"

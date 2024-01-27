@@ -16,7 +16,7 @@ func NewTaskRepository(database *sqlx.DB) *TaskRepository {
 	}
 }
 
-func (taskRepository *TaskRepository) FindAllTasks(ctx context.Context) ([]TaskEntity, error) {
+func (taskRepository *TaskRepository) FindAll(ctx context.Context) ([]TaskEntity, error) {
 	var taskEntities []TaskEntity
 	err := taskRepository.database.SelectContext(ctx, &taskEntities, "SELECT task_id, title, description FROM public.tasks")
 	if err != nil {
