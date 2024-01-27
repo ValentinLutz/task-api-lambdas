@@ -1,0 +1,14 @@
+# JetBrains IDEs
+.idea
+
+# AWS SAM
+.aws-sam
+
+# CDK
+.cdk.staging
+cdk.out
+bootstrap
+
+# Testing
+coverage.out
+coverage.html
