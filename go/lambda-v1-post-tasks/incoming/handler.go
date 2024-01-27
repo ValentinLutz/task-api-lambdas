@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 	"root/go/lambda-shared"
-	"root/go/lambda-v1-get-tasks/core"
-	"root/go/lambda-v1-get-tasks/outgoing"
+	"root/go/lambda-v1-post-tasks/core"
+	"root/go/lambda-v1-post-tasks/outgoing"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -49,16 +49,22 @@ func NewHandler() (*Handler, error) {
 	}, nil
 }
 
-func (handler *Handler) Invoke(ctx context.Context, _ events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	taskEntities, err := handler.TaskService.GetTasks(ctx)
+func (handler *Handler) Invoke(ctx context.Context, r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	var taskRequest TaskRequest
+	err := json.Unmarshal([]byte(r.Body), &taskRequest)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to get taskEntities: %w", err)
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %w", err)
 	}
 
-	tasksResponse := NewTasksResponse(taskEntities)
+	taskEntity, err := handler.TaskService.SaveTask(ctx, taskRequest.Title, taskRequest.Description)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to get task: %w", err)
+	}
+
+	tasksResponse := NewTaskResponse(taskEntity)
 	tasksResponseBody, err := json.Marshal(tasksResponse)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to marshal taskEntities: %w", err)
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to marshal task: %w", err)
 	}
 
 	return events.APIGatewayProxyResponse{

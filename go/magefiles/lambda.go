@@ -32,6 +32,7 @@ func (Lambda) Build() error {
 
 	lambdas := []string{
 		"./lambda-v1-get-tasks",
+		"./lambda-v1-post-tasks",
 	}
 
 	for _, lambda := range lambdas {
