@@ -27,19 +27,10 @@ func NewFunction(stack awscdk.Stack, config *StageConfig, functionName string, b
 
 	lambdaFunction := awslambda.NewFunction(
 		stack, jsii.String(functionName), &awslambda.FunctionProps{
-			Code: awslambda.Code_FromAsset(
-				jsii.String(bootstrapPath),
-				&awss3assets.AssetOptions{
-					IgnoreMode: awscdk.IgnoreMode_GIT,
-					Exclude: &[]*string{
-						jsii.String("**"),
-						jsii.String("!bootstrap"),
-					},
-				},
-			),
-			Runtime:      awslambda.Runtime_PROVIDED_AL2023(),
+			Code:         awslambda.Code_FromAsset(jsii.String(bootstrapPath), &awss3assets.AssetOptions{}),
+			Runtime:      awslambda.Runtime_JAVA_21(),
 			MemorySize:   jsii.Number(128),
-			Handler:      jsii.String("bootstrap"),
+			Handler:      jsii.String("science.monke.incoming.Handler"),
 			Architecture: config.lambdaConfig.architecture,
 			Environment:  &env,
 		},
@@ -49,13 +40,13 @@ func NewFunction(stack awscdk.Stack, config *StageConfig, functionName string, b
 }
 
 func NewRestApi(stack awscdk.Stack, config *StageConfig) awscdk.Stack {
-	deleteTaskFunction := NewFunction(stack, config, "V1DeleteTask", "../lambda-v1-delete-task")
-	getTaskFunction := NewFunction(stack, config, "V1GetTask", "../lambda-v1-get-task")
-	getTasksFunction := NewFunction(stack, config, "V1GetTasks", "../lambda-v1-get-tasks")
-	postTasksFunction := NewFunction(stack, config, "V1PostTasks", "../lambda-v1-post-tasks")
-	putTaskFunction := NewFunction(stack, config, "V1PutTask", "../lambda-v1-put-task")
+	deleteTaskFunction := NewFunction(stack, config, "V1DeleteTask", "../lambda-v1-delete-task/target/bootstrap.jar")
+	getTaskFunction := NewFunction(stack, config, "V1GetTask", "../lambda-v1-get-task/target/bootstrap.jar")
+	getTasksFunction := NewFunction(stack, config, "V1GetTasks", "../lambda-v1-get-tasks/target/bootstrap.jar")
+	postTasksFunction := NewFunction(stack, config, "V1PostTasks", "../lambda-v1-post-tasks/target/bootstrap.jar")
+	putTaskFunction := NewFunction(stack, config, "V1PutTask", "../lambda-v1-put-task/target/bootstrap.jar")
 
-	openApiSpecs, err := template.ParseFiles("../api-definition/task-api-v1.yaml")
+	openApiSpecs, err := template.ParseFiles("../../api-definition/task-api-v1.yaml")
 	if err != nil {
 		panic(err)
 	}

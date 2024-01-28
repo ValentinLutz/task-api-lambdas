@@ -1,6 +1,7 @@
 # JetBrains IDEs
 .idea
 *.iml
+target
 
 # AWS SAM
 .aws-sam
