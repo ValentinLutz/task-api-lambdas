@@ -2,7 +2,6 @@ package shared
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -10,7 +9,7 @@ import (
 
 type DatabaseConfig struct {
 	Host     string
-	Port     string
+	Port     int
 	Name     string
 	User     string
 	Password string
@@ -19,12 +18,12 @@ type DatabaseConfig struct {
 var (
 	ErrSecretUsernameNotSet = fmt.Errorf("secret username not set")
 	ErrSecretPasswordNotSet = fmt.Errorf("secret password not set")
-	ErrDbHostEnvNotSet      = fmt.Errorf("env DB_HOST not set")
-	ErrDbPortEnvNotSet      = fmt.Errorf("env DB_PORT not set")
-	ErrDbNameEnvNotSet      = fmt.Errorf("env DB_NAME not set")
+	ErrDbHostEnvNotSet      = fmt.Errorf("secret host not set")
+	ErrDbPortEnvNotSet      = fmt.Errorf("secret port not set")
+	ErrDbNameEnvNotSet      = fmt.Errorf("secret name not set")
 )
 
-func NewDatabaseConfig(secret Secret) (*DatabaseConfig, error) {
+func NewDatabaseConfig(secret DatabaseSecret) (*DatabaseConfig, error) {
 	if secret.Username == "" {
 		return nil, ErrSecretUsernameNotSet
 	}
@@ -32,23 +31,22 @@ func NewDatabaseConfig(secret Secret) (*DatabaseConfig, error) {
 		return nil, ErrSecretPasswordNotSet
 	}
 
-	host, ok := os.LookupEnv("DB_HOST")
-	if !ok {
+	if secret.Host == "" {
 		return nil, ErrDbHostEnvNotSet
 	}
-	port, ok := os.LookupEnv("DB_PORT")
-	if !ok {
+
+	if secret.Port == 0 {
 		return nil, ErrDbPortEnvNotSet
 	}
-	name, ok := os.LookupEnv("DB_NAME")
-	if !ok {
+
+	if secret.Name == "" {
 		return nil, ErrDbNameEnvNotSet
 	}
 
 	return &DatabaseConfig{
-		Host:     host,
-		Port:     port,
-		Name:     name,
+		Host:     secret.Host,
+		Port:     secret.Port,
+		Name:     secret.Name,
 		User:     secret.Username,
 		Password: secret.Password,
 	}, nil
@@ -56,7 +54,7 @@ func NewDatabaseConfig(secret Secret) (*DatabaseConfig, error) {
 
 func NewDatabase(config *DatabaseConfig) (*sqlx.DB, error) {
 	psqlInfo := fmt.Sprintf(
-		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
+		"host=%s port=%d dbname=%s user=%s password=%s",
 		config.Host, config.Port, config.Name, config.User, config.Password,
 	)
 

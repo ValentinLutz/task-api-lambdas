@@ -5,19 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"root/service-golang/lambda-shared"
+	shared "root/service-golang/lambda-shared"
 	"root/service-golang/lambda-v1-put-task/core"
 	"root/service-golang/lambda-v1-put-task/outgoing"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type Handler struct {
-	Database    *sqlx.DB
 	TaskService *core.TaskService
 }
 
@@ -27,7 +24,7 @@ func NewHandler() (*Handler, error) {
 		return nil, fmt.Errorf("failed to load aws default config: %w", err)
 	}
 
-	secret, err := shared.GetSecret(cfg, os.Getenv("DB_SECRET_ID"))
+	secret, err := shared.GetDatabaseSecret(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get database secret: %w", err)
 	}
@@ -46,7 +43,6 @@ func NewHandler() (*Handler, error) {
 	taskService := core.NewTaskService(taskRepository)
 
 	return &Handler{
-		Database:    database,
 		TaskService: taskService,
 	}, nil
 }
