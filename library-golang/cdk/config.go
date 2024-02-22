@@ -15,7 +15,6 @@ type StageConfig struct {
 	Account      string
 	Region       string
 	Environment  string
-	EndpointUrl  *string
 	LambdaConfig LambdaConfig
 }
 

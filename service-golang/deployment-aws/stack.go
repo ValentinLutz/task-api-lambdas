@@ -16,7 +16,7 @@ import (
 )
 
 func NewRestApi(stack awscdk.Stack, config *cdk.StageConfig, database awsrds.DatabaseInstance) awsapigateway.SpecRestApi {
-	_ = cdk.NewGoFunction(stack, config, "DatabaseMigration", "../../database-migration/lambda", database)
+	_ = cdk.NewGoFunction(stack, config, "DatabaseMigration", "../../service-migration/lambda", database)
 	deleteTaskFunction := cdk.NewGoFunction(stack, config, "V1DeleteTask", "../lambda-v1-delete-task", database)
 	getTaskFunction := cdk.NewGoFunction(stack, config, "V1GetTask", "../lambda-v1-get-task", database)
 	getTasksFunction := cdk.NewGoFunction(stack, config, "V1GetTasks", "../lambda-v1-get-tasks", database)
@@ -101,6 +101,7 @@ func NewStack(scope constructs.Construct, id *string, config *cdk.StageConfig) a
 
 	vpc := cdk.NewVpc(stack)
 	database := cdk.NewDatabase(stack, vpc)
+	cdk.NewVpcEndpoint(stack, vpc)
 	NewRestApi(stack, config, database)
 
 	return stack

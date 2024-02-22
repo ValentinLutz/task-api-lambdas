@@ -20,9 +20,6 @@ func NewJavaFunction(
 	env := map[string]*string{
 		"DB_SECRET_ID": database.Secret().SecretName(),
 	}
-	if config.EndpointUrl != nil {
-		env["AWS_ENDPOINT_URL"] = config.EndpointUrl
-	}
 
 	function := awslambda.NewFunction(
 		stack, jsii.String(functionName), &awslambda.FunctionProps{
@@ -39,7 +36,7 @@ func NewJavaFunction(
 	database.Secret().GrantRead(function, nil)
 	database.Connections().AllowFrom(
 		function,
-		awsec2.Port_Tcp(database.InstanceEndpoint().Port()),
+		awsec2.Port_Tcp(jsii.Number(5432)),
 		jsii.String("Allow access from java lambda to database"),
 	)
 
@@ -75,6 +72,7 @@ func NewGoFunction(
 			Handler:      jsii.String("bootstrap"),
 			Architecture: config.LambdaConfig.Architecture,
 			Environment:  &env,
+			Tracing:      awslambda.Tracing_ACTIVE,
 		},
 	)
 
@@ -98,6 +96,15 @@ func NewVpc(stack awscdk.Stack) awsec2.Vpc {
 	return vpc
 }
 
+func NewVpcEndpoint(stack awscdk.Stack, vpc awsec2.Vpc) awsec2.VpcEndpoint {
+	return awsec2.NewInterfaceVpcEndpoint(
+		stack, jsii.String("SecretManagerVpcEndpoint"), &awsec2.InterfaceVpcEndpointProps{
+			Vpc:     vpc,
+			Service: awsec2.InterfaceVpcEndpointAwsService_SECRETS_MANAGER(),
+		},
+	)
+}
+
 func NewDatabase(stack awscdk.Stack, vpc awsec2.Vpc) awsrds.DatabaseInstance {
 	database := awsrds.NewDatabaseInstance(
 		stack, jsii.String("SmallDatabase"), &awsrds.DatabaseInstanceProps{
@@ -109,8 +116,9 @@ func NewDatabase(stack awscdk.Stack, vpc awsec2.Vpc) awsrds.DatabaseInstance {
 					Version: awsrds.PostgresEngineVersion_VER_16_1(),
 				},
 			),
-			InstanceType: awsec2.InstanceType_Of(awsec2.InstanceClass_T4G, awsec2.InstanceSize_MICRO),
-			MultiAz:      jsii.Bool(false),
+			InstanceType:  awsec2.InstanceType_Of(awsec2.InstanceClass_T4G, awsec2.InstanceSize_MICRO),
+			MultiAz:       jsii.Bool(false),
+			RemovalPolicy: awscdk.RemovalPolicy_DESTROY,
 		},
 	)
 

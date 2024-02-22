@@ -3,6 +3,8 @@ package shared
 import (
 	"fmt"
 
+	"github.com/aws/aws-xray-sdk-go/xray"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -54,14 +56,15 @@ func NewDatabaseConfig(secret DatabaseSecret) (*DatabaseConfig, error) {
 
 func NewDatabase(config *DatabaseConfig) (*sqlx.DB, error) {
 	psqlInfo := fmt.Sprintf(
-		"host=%s port=%d dbname=%s user=%s password=%s",
-		config.Host, config.Port, config.Name, config.User, config.Password,
+		"postgres://%s:%s@%s:%d/%s", // postgres://<user>:<password>@<host>:<port>/<database>
+		config.User, config.Password, config.Host, config.Port, config.Name,
 	)
 
-	db, err := sqlx.Open("postgres", psqlInfo)
+	dbXray, err := xray.SQLContext("postgres", psqlInfo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
+	db := sqlx.NewDb(dbXray, "postgres")
 
 	err = db.Ping()
 	if err != nil {

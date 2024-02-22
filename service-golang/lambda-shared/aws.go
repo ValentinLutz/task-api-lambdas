@@ -24,8 +24,8 @@ func GetDatabaseSecret(config aws.Config) (DatabaseSecret, error) {
 		return DatabaseSecret{}, fmt.Errorf("env DB_SECRET_ID not set")
 	}
 
-	conn := secretsmanager.NewFromConfig(config)
-	secretValue, err := conn.GetSecretValue(
+	client := secretsmanager.NewFromConfig(config)
+	secretValue, err := client.GetSecretValue(
 		context.Background(), &secretsmanager.GetSecretValueInput{
 			SecretId: aws.String(secretId),
 		},

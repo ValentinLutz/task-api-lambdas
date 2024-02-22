@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-xray-sdk-go/instrumentation/awsv2"
 	"github.com/google/uuid"
 )
 
@@ -23,6 +24,8 @@ func NewHandler() (*Handler, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load aws default config: %w", err)
 	}
+
+	awsv2.AWSV2Instrumentor(&cfg.APIOptions)
 
 	secret, err := shared.GetDatabaseSecret(cfg)
 	if err != nil {
